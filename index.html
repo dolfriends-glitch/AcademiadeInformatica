@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Academia de Informática</title>
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: #003366;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 0;
+        background: white;
+      }
+      .container {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        max-width: 100% !important;
+        min-height: 100vh;
+        padding: 20px 16px !important;
+      }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 560px;
+      background: white;
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.25);
+      margin: auto 0;
+      transition: max-width .3s ease;
+    }
+
+    .container.examen-activo {
+      max-width: 860px;
+    }
+
+    .logo {
+      width: 90px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0;
+      color: #003366;
+      font-size: clamp(22px, 6vw, 32px);
+      font-weight: 800;
+    }
+
+    .sub {
+      color: #777;
+      margin: 4px 0 24px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .hero {
+      width: 100%;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      display: block;
+      object-fit: cover;
+      max-height: 200px;
+    }
+
+    .dni-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    input[type=text],
+    input[type=email] {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1.5px solid #ddd;
+      font-size: 16px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input:focus {
+      border-color: #0066ff;
+    }
+    input[readonly] {
+      background: #f3f4f6;
+      color: #6b7280;
+      cursor: not-allowed;
+    }
+
+    .datos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .timer {
+      position: sticky;
+      top: 0;
+      background: #ff4444;
+      color: white;
+      padding: 13px;
+      border-radius: 14px;
+      text-align: center;
+      font-size: clamp(22px, 5vw, 28px);
+      font-weight: bold;
+      margin-bottom: 20px;
+      z-index: 999;
+    }
+
+    .question {
+      background: #f8f9fc;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .question h3 {
+      margin: 0 0 10px;
+      color: #111827;
+      font-size: clamp(14px, 3.5vw, 17px);
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin: 6px 0;
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: clamp(13px, 3vw, 15px);
+      line-height: 1.4;
+      transition: background .15s;
+    }
+
+    label:hover { background: #eef4ff; }
+
+    input[type=radio] {
+      margin-right: 8px;
+      transform: scale(1.2);
+      vertical-align: middle;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 14px;
+      background: #0066ff;
+      color: white;
+      font-size: clamp(16px, 4vw, 18px);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background .2s;
+      -webkit-appearance: none;
+    }
+
+    button:hover  { background: #0050d4; }
+    button:active { background: #003faa; }
+
+    .btn-green       { background: #16a34a !important; }
+    .btn-green:hover { background: #15803d !important; }
+    button:disabled {
+      background: #bdbdbd !important;
+      cursor: not-allowed;
+      opacity: .7;
+    }
+
+    .btn-cert {
+      margin-top: 12px;
+      max-width: 320px;
+    }
+
+    .ok  { color: #15803d; }
+    .bad { color: #d00000; }
+
+    .resultado{
+      text-align:center;
+      padding:18px 10px 5px;
+      margin-top:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:2px;
+    }
+
+    .resultado h2{
+      max-width:380px;
+      line-height:1.25;
+      text-align:center;
+      margin:0 auto;
+      font-size:21px;
+    }
+
+    .resultado p{
+      max-width:500px;
+      text-align:center;
+      margin:0 auto;
+      line-height:1.6;
+    }
+
+    .loading { opacity: .7; pointer-events: none; }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      display: inline-block;
+      animation: girar 1s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes girar {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    #examen { display: none; margin-top: 20px; }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <img id="logoInicio" class="logo" src="https://i.ibb.co/fdcvTZF1/Logo.png">
+  <h1>Academia de Informática</h1>
+  <div class="sub">Examen Desafio Mayo 2026</div>
+
+  <div id="inicio">
+    <div class="dni-box">
+      <input type="text" id="dniBuscar" placeholder="Ingresá tu DNI">
+      <button id="btnDni" onclick="verificarDNI()">Continuar</button>
+    </div>
+    <div id="mensaje"></div>
+  </div>
+
+  <div id="examen">
+
+    <img id="bannerExamen" class="hero" src="https://i.ibb.co/9XKbv0Z/Sin-t-tulo-1.png" style="display:none;">
+
+    <div id="inicioExamen">
+      <div class="datos-grid">
+        <input type="text" id="nombre" placeholder="Nombre y apellido" oninput="validarDatos()">
+        <input type="text" id="dni" readonly>
+        <input type="email" id="email" placeholder="Correo electrónico" oninput="validarDatos()">
+      </div>
+      <button type="button" id="btnComenzar" class="btn-green" onclick="comenzarExamen()" disabled>✓ Comenzar examen</button>
+    </div>
+
+    <div class="timer" id="timer" style="display:none;">05:00</div>
+
+    <form id="examForm" style="display:none;">
+
+      <div class="question">
+        <h3>1. ¿Cuál es la primera pregunta que debés hacerte antes de comprar o armar una computadora?</h3>
+        <label><input type="radio" name="p1" value="a" required>A) ¿Para qué voy a usar la computadora?</label>
+        <label><input type="radio" name="p1" value="b">B) ¿Cuánto dinero tengo?</label>
+        <label><input type="radio" name="p1" value="c">C) ¿Qué marca de procesador prefiero?</label>
+        <label><input type="radio" name="p1" value="d">D) ¿Cuántos núcleos necesito?</label>
+      </div>
+
+      <div class="question">
+        <h3>2. ¿Qué es el procesador o CPU??</h3>
+        <label><input type="radio" name="p2" value="a" required>A) El componente que almacena datos permanentemente</label>
+        <label><input type="radio" name="p2" value="b">B) La memoria que guarda datos temporales</label>
+        <label><input type="radio" name="p2" value="c">C) El "cerebro" de la computadora que realiza todos los cálculos</label>
+        <label><input type="radio" name="p2" value="d">D) El chip que controla los gráficos</label>
+      </div>
+
+      <div class="question">
+        <h3>3. ¿Qué indica el sufijo F en Intel?</h3>
+        <label><input type="radio" name="p3" value="a" required>A) Que el procesador permite Overclock (OC)</label>
+        <label><input type="radio" name="p3" value="b">B) Que el procesador incluye gráficos Iris Xe de alto rendimiento</label>
+        <label><input type="radio" name="p3" value="c">C) Que el procesador NO cuenta con video integrado y requiere una placa de video dedicada</label>
+        <label><input type="radio" name="p3" value="d">D) Que es un modelo diseñado exclusivamente para servidores</label>
+      </div>
+
+      <div class="question">
+        <h3>4. ¿Cuál es la función principal de la memoria RAM?</h3>
+        <label><input type="radio" name="p4" value="a" required>A) Guardar archivos permanentemente</label>
+        <label><input type="radio" name="p4" value="b">B) Procesar gráficos</label>
+        <label><input type="radio" name="p4" value="c">C) Convertir la corriente alterna en corriente continua</label>
+        <label><input type="radio" name="p4" value="d">D) Almacenar temporalmente los datos que el procesador necesita mientras el sistema está encendido</label>
+      </div>
+
+      <div class="question">
+        <h3>5. ¿Qué inicializa el hardware al encender?</h3>
+        <label><input type="radio" name="p5" value="a" required>A) Windows</label>
+        <label><input type="radio" name="p5" value="b">B) BIOS/UEFI</label>
+        <label><input type="radio" name="p5" value="c">C) Driver</label>
+        <label><input type="radio" name="p5" value="d">D) Panel Control</label>
+      </div>
+
+      <div class="question">
+        <h3>6. ¿Cuál es la principal característica técnica de un SSD NVMe frente a un SSD SATA?</h3>
+        <label><input type="radio" name="p6" value="a" required>A) Usa platos magnéticos que giran a 7200 RPM</label>
+        <label><input type="radio" name="p6" value="b">B) Se conecta mediante cables delgados de energía solamente</label>
+        <label><input type="radio" name="p6" value="c">C) Usa la interfaz PCIe, alcanzando velocidades mucho mayores que la interfaz SATA</label>
+        <label><input type="radio" name="p6" value="d">D) Es más lento pero tiene mucha más capacidad de almacenamiento</label>
+      </div>
+
+      <div class="question">
+        <h3>7. ¿Qué función cumple la Fuente de Poder (PSU) en el sistema?</h3>
+        <label><input type="radio" name="p7" value="a" required>A) Enfriar el gabinete mediante el ventilador trasero</label>
+        <label><input type="radio" name="p7" value="b">B) Convertir la corriente alterna (AC) en corriente continua (DC) para los componentes</label>
+        <label><input type="radio" name="p7" value="c">C) Aumentar la velocidad de internet</label>
+        <label><input type="radio" name="p7" value="d">D) Almacenar energía en una batería interna por si hay cortes de luz</label>
+      </div>
+
+      <div class="question">
+        <h3>8. ¿Cuál es la primera acción que debés realizar antes de manipular componentes internos de una PC?</h3>
+        <label><input type="radio" name="p8" value="a" required>A) Retirar el procesador</label>
+        <label><input type="radio" name="p8" value="b">B) Desconectar el cable de alimentación</label>
+        <label><input type="radio" name="p8" value="c">C) Quitar los módulos de RAM</label>
+        <label><input type="radio" name="p8" value="d">D) Abrir el gabinete</label>
+      </div>
+
+      <div class="question">
+        <h3>9. ¿Cuál de estos conectores de video es ANALÓGICO?</h3>
+        <label><input type="radio" name="p9" value="a" required>A) HDMI</label>
+        <label><input type="radio" name="p9" value="b">B) DisplayPort</label>
+        <label><input type="radio" name="p9" value="c">C) VGA</label>
+        <label><input type="radio" name="p9" value="d">D) DVI-D</label>
+      </div>
+
+      <div class="question">
+        <h3>10. ¿Qué hace el software Rufus?</h3>
+        <label><input type="radio" name="p10" value="a" required>A) Instala drivers de video automáticamente</label>
+        <label><input type="radio" name="p10" value="b">B) Crea pendrives booteables con la imagen del sistema operativo.</label>
+        <label><input type="radio" name="p10" value="c">C) Formatea discos duros de forma segura</label>
+        <label><input type="radio" name="p10" value="d">D) Actualiza el BIOS de la placa madre</label>
+      </div>
+
+      <button type="submit" id="btnEnviar">Finalizar examen</button>
+
+    </form>
+  </div>
+
+</div>
+
+<script>
+  // =====================================================
+  // VINCULACIÓN CON GOOGLE APPS SCRIPT
+  // =====================================================
+  // REEMPLAZÁ ESTA URL POR LA DE TU WEB APP DESPLEGADA
+  const WEB_APP_URL = "PASÁ_ACÁ_TU_URL_DE_EXEC_DE_APPS_SCRIPT";
+
+  const EXAMEN_ACTIVO_HASTA = new Date("2026-05-13T19:00:00");
+  let intervalo; 
+
+  async function verificarDNI() {
+    const ahora = new Date();
+
+    if (ahora > EXAMEN_ACTIVO_HASTA) {
+      document.getElementById("inicio").innerHTML = `
+        <div class="resultado">
+          <h2 class="bad">El examen ya no se encuentra disponible</h2>
+          <p style="margin-top:20px; font-size:16px; line-height:1.6; color:#555; max-width:500px;">
+            ⏳ La fecha límite para realizar el Desafío Mayo 2026 ha finalizado. Gracias a todos los participantes.
+          </p>
+          <button class="btn-cert btn-green" style="margin-top:22px;" onclick="window.open('https://academiainformaticaok.com/inscripcion')">
+            Unirme a la Academia
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    const dni = document.getElementById("dniBuscar").value;
+    if (!dni) return;
+
+    const btnDni = document.getElementById("btnDni");
+    btnDni.classList.add("loading");
+    btnDni.innerHTML = '<span class="spinner"></span>Verificando...';
+    btnDni.disabled = true;
+
+    try {
+      // Petición HTTP POST hacia Apps Script
+      const response = await fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({ accion: "verificarDNI", dni: dni })
+      });
+      const resultado = await response.json();
+      procesarDNI(resultado);
+    } catch (error) {
+      console.error(error);
+      document.getElementById("mensaje").innerHTML = '<p class="bad">Error de conexión. Reintentá.</p>';
+      btnDni.classList.remove("loading");
+      btnDni.innerHTML = 'Continuar';
+      btnDni.disabled = false;
+    }
+  }
+
+  function procesarDNI(r) {
+    const mensaje = document.getElementById("mensaje");
+    const btnDni = document.getElementById("btnDni");
+    
+    btnDni.classList.remove("loading");
+    btnDni.innerHTML = 'Continuar';
+    btnDni.disabled = false;
+
+    if (r.status === "aprobado") {
+      mensaje.innerHTML = `
+        <div class="resultado">
+          <h2 class="ok">&#10003; Certificado disponible</h2>
+          <button class="btn-cert btn-green" onclick="window.open('${r.certificado}')">Ver certificado</button>
+          <button class="btn-cert" onclick="window.open('https://academiainformaticaok.com/inscripcion')">Unirme a la Academia</button>
+        </div>`;
+      return;
+    }
+
+    if (r.status === "no_aprobado") {
+      mensaje.innerHTML = `
+        <div class="resultado">
+          <h2 class="bad">Ya registraste un examen con este DNI</h2>
+          <p style="margin-top:20px;font-size:16px;line-height:1.6;color:#555;">
+            🚀 Esta vez no se dio, pero cada intento suma experiencia. Seguí practicando y volvé a intentarlo. ¡En la próxima seguro lo lográs!
+          </p>
+          <button class="btn-cert" style="margin-top:20px;" onclick="window.open('https://academiainformaticaok.com/inscripcion')">
+            Unirme a la Academia
+          </button>
+        </div>`;
+      return;
+    }
+
+    document.getElementById("inicio").style.display = "none";
+    document.getElementById("examen").style.display = "block";
+    document.getElementById("logoInicio").style.display = "none";
+    document.querySelector(".container").classList.add("examen-activo");
+    document.getElementById("bannerExamen").style.display = "block";
+    document.getElementById("dni").value = document.getElementById("dniBuscar").value;
+  }
+
+  function validarDatos() {
+    const nombre = document.getElementById("nombre").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    document.getElementById("btnComenzar").disabled = !(nombre.length > 0 && emailValido);
+  }
+
+  function comenzarExamen() {
+    document.getElementById("inicioExamen").style.display = "none";
+    document.getElementById("examForm").style.display = "block";
+    document.getElementById("timer").style.display = "block";
+    iniciarTimer();
+  }
+
+  function iniciarTimer() {
+    let tiempo = 5 * 60; // 5 minutos fijados en segundos
+    const display = document.getElementById("timer");
+    
+    intervalo = setInterval(function () {
+      let minutos = Math.floor(tiempo / 60);
+      let segundos = tiempo % 60;
+
+      minutos = minutos < 10 ? "0" + minutos : minutos;
+      segundos = segundos < 10 ? "0" + segundos : segundos;
+
+      display.textContent = minutos + ":" + segundos;
+
+      if (--tiempo < 0) {
+        clearInterval(intervalo);
+        enviarExamen(); // Envío automático por fin de tiempo
+      }
+    }, 1000);
+  }
+
+  document.getElementById("examForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    enviarExamen();
+  });
+
+  async function enviarExamen() {
+    const btn = document.getElementById("btnEnviar");
+    if (btn.classList.contains("loading")) return;
+    btn.classList.add("loading");
+    btn.innerHTML = '<span class="spinner"></span>Enviando examen...';
+    btn.disabled = true;
+    clearInterval(intervalo);
+
+    const data = {
+      nombre: document.getElementById("nombre").value,
+      dni:     document.getElementById("dni").value,
+      email:  document.getElementById("email").value,
+      respuestas: {
+        p1:  obtener("p1"), p2:  obtener("p2"), p3:  obtener("p3"), p4:  obtener("p4"), p5:  obtener("p5"),
+        p6:  obtener("p6"), p7:  obtener("p7"), p8:  obtener("p8"), p9:  obtener("p9"), p10: obtener("p10")
+      }
+    };
+
+    try {
+      const response = await fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify({ accion: "guardarExamen", data: data })
+      });
+      const resultado = await response.json();
+      mostrarResultado(resultado);
+    } catch (error) {
+      console.error(error);
+      alert("Hubo un problema al guardar tu examen. Por favor, contactá a soporte.");
+      btn.classList.remove("loading");
+      btn.innerHTML = 'Finalizar examen';
+      btn.disabled = false;
+    }
+  }
+
+  function obtener(nombre) {
+    const el = document.querySelector('input[name="' + nombre + '"]:checked');
+    return el ? el.value : "";
+  }
+
+  function mostrarResultado(r) {
+    let botones = "";
+    if (r.estado === "APROBADO") {
+      if (r.certificado) window.open(r.certificado, "_blank");
+      botones =
+        '<button class="btn-cert btn-green" onclick="window.open(\'' + r.certificado + '\')">Ver certificado</button>' +
+        '<button class="btn-cert" onclick="window.open(\'https://academiainformaticaok.com/inscripcion\')">Unirme a la Academia</button>';
+    } else {
+      botones = '<button class="btn-cert" onclick="window.open(\'https://academiainformaticaok.com/inscripcion\')">Unirme a la Academia</button>';
+    }
+
+    const claseEstado = r.estado === "APROBADO" ? "ok" : "bad";
+    document.getElementById("examen").innerHTML =
+      '<div class="resultado">' +
+        '<h1 class="' + claseEstado + '">' + r.estado + '</h1>' +
+        '<h2>Puntaje: ' + r.puntaje + '/10</h2>' +
+        botones +
+      '</div>';
+  }
+
+  document.getElementById("dniBuscar").addEventListener("input", function() {
+    document.getElementById("mensaje").innerHTML = "";
+  });
+</script>
+
+</body>
+</html>
